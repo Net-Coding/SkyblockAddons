@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.event.ClickEvent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,15 +15,18 @@ import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.text.ChatType;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLLog;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.text.WordUtils;
+import org.lwjgl.opengl.Display;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -31,8 +34,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,7 +52,7 @@ public class Utils {
     private Map<Attribute, MutableInt> attributes = new EnumMap<>(Attribute.class);
     private List<String> enchantmentMatch = new LinkedList<>();
     private List<String> enchantmentExclusion = new LinkedList<>();
-    private BackpackInfo backpackToRender = null;
+    private Backpack backpackToRender = null;
     private static boolean onSkyblock = false;
     private EnumUtils.Location location = null;
     private boolean playingSound = false;
@@ -52,6 +60,9 @@ public class Utils {
     private String serverID = "";
     private SkyblockDate currentDate = new SkyblockDate(SkyblockDate.SkyblockMonth.EARLY_WINTER, 1, 1, 1);
     private int lastHoveredSlot = -1;
+
+    public static int closedMouseX = Display.getWidth() / 2;
+    public static int closedMouseY = Display.getHeight() / 2;
 
     private boolean fadingIn;
 
@@ -69,18 +80,14 @@ public class Utils {
     }
 
     public void sendMessage(String text) {
-        ClientChatReceivedEvent event = new ClientChatReceivedEvent((byte) 1, new ChatComponentText(text));
-        MinecraftForge.EVENT_BUS.post(event); // Let other mods pick up the new message
-        if (!event.isCanceled()) {
-            Minecraft.getMinecraft().thePlayer.addChatMessage(event.message); // Just for logs
-        }
+        this.sendMessage(new TextComponentString(text));
     }
 
-    private void sendMessage(ChatComponentText text) {
-        ClientChatReceivedEvent event = new ClientChatReceivedEvent((byte) 1, text);
+    private void sendMessage(TextComponentString text) {
+        ClientChatReceivedEvent event = new ClientChatReceivedEvent(ChatType.SYSTEM, text);
         MinecraftForge.EVENT_BUS.post(event); // Let other mods pick up the new message
         if (!event.isCanceled()) {
-            Minecraft.getMinecraft().thePlayer.addChatMessage(event.message); // Just for logs
+            Minecraft.getMinecraft().player.sendMessage(event.getMessage()); // Just for logs
         }
     }
 
@@ -91,15 +98,16 @@ public class Utils {
     public void checkGameLocationDate() {
         boolean foundLocation = false;
         Minecraft mc = Minecraft.getMinecraft();
-        if (mc != null && mc.theWorld != null) {
-            Scoreboard scoreboard = mc.theWorld.getScoreboard();
-            ScoreObjective sidebarObjective = mc.theWorld.getScoreboard().getObjectiveInDisplaySlot(1);
+        if (mc != null && mc.world != null) {
+            Scoreboard scoreboard = mc.world.getScoreboard();
+            ScoreObjective sidebarObjective = mc.world.getScoreboard().getObjectiveInDisplaySlot(1);
             if (sidebarObjective != null) {
                 String objectiveName = stripColor(sidebarObjective.getDisplayName());
                 onSkyblock = false;
                 for (String skyblock : skyblockInAllLanguages) {
                     if (objectiveName.startsWith(skyblock)) {
                         onSkyblock = true;
+                        break;
                     }
                 }
                 Collection<Score> collection = scoreboard.getSortedScores(sidebarObjective);
@@ -123,13 +131,13 @@ public class Utils {
                             try {
                                 currentDate.setMonth(month);
                                 String numberPart = locationString.substring(locationString.lastIndexOf(" ") + 1);
-                                int day = Integer.valueOf(getNumbersOnly(numberPart));
+                                int day = Integer.parseInt(getNumbersOnly(numberPart));
                                 currentDate.setDay(day);
                                 if (timeString != null) {
                                     String[] timeSplit = timeString.split(Pattern.quote(":"));
-                                    int hour = Integer.valueOf(timeSplit[0]);
+                                    int hour = Integer.parseInt(timeSplit[0]);
                                     currentDate.setHour(hour);
-                                    int minute = Integer.valueOf(timeSplit[1]);
+                                    int minute = Integer.parseInt(timeSplit[1]);
                                     currentDate.setMinute(minute);
                                 }
                             } catch (IndexOutOfBoundsException | NumberFormatException ignored) {}
@@ -255,20 +263,20 @@ public class Utils {
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         } finally {
-                            sendMessage(EnumChatFormatting.GRAY.toString() + EnumChatFormatting.STRIKETHROUGH + "--------------" + EnumChatFormatting.GRAY + "[" + EnumChatFormatting.BLUE + EnumChatFormatting.BOLD + " SkyblockAddons " + EnumChatFormatting.GRAY + "]" + EnumChatFormatting.GRAY + EnumChatFormatting.STRIKETHROUGH + "--------------");
-                            ChatComponentText newVersion = new ChatComponentText(EnumChatFormatting.YELLOW+Message.MESSAGE_NEW_VERSION.getMessage(newestVersion)+"\n");
-                            newVersion.setChatStyle(newVersion.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link)));
+                            sendMessage(ChatFormatting.GRAY.toString() + ChatFormatting.STRIKETHROUGH + "--------------" + ChatFormatting.GRAY + "[" + ChatFormatting.BLUE + ChatFormatting.BOLD + " SkyblockAddons " + ChatFormatting.GRAY + "]" + ChatFormatting.GRAY + ChatFormatting.STRIKETHROUGH + "--------------");
+                            TextComponentString newVersion = new TextComponentString(ChatFormatting.YELLOW + Message.MESSAGE_NEW_VERSION.getMessage(newestVersion) + "\n");
+                            newVersion.setStyle(newVersion.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link)));
                             sendMessage(newVersion);
-                            ChatComponentText discord = new ChatComponentText(EnumChatFormatting.YELLOW+Message.MESSAGE_DISCORD.getMessage());
-                            discord.setChatStyle(discord.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/PqTAEek")));
-                            sendMessage(discord);
-                            sendMessage(EnumChatFormatting.GRAY.toString() + EnumChatFormatting.STRIKETHROUGH + "---------------------------------------");
+                            /*TextComponentString discord = new TextComponentString(ChatFormatting.YELLOW + Message.MESSAGE_DISCORD.getMessage());
+                            discord.setStyle(discord.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/PqTAEek")));
+                            sendMessage(discord);*/
+                            sendMessage(ChatFormatting.GRAY.toString() + ChatFormatting.STRIKETHROUGH + "---------------------------------------");
                         }
                         break;
                     } else if (thisVersionNumbers.get(i) > newestVersionNumbers.get(i)) {
-                        sendMessage(EnumChatFormatting.GRAY.toString() + EnumChatFormatting.STRIKETHROUGH + "--------------" + EnumChatFormatting.GRAY + "[" + EnumChatFormatting.BLUE + EnumChatFormatting.BOLD + " SkyblockAddons " + EnumChatFormatting.GRAY + "]" + EnumChatFormatting.GRAY + EnumChatFormatting.STRIKETHROUGH + "--------------");
-                        sendMessage(EnumChatFormatting.YELLOW + Message.MESSAGE_DEVELOPMENT_VERSION.getMessage(SkyblockAddons.VERSION, newestVersion));
-                        sendMessage(EnumChatFormatting.GRAY.toString() + EnumChatFormatting.STRIKETHROUGH + "---------------------------------------");
+                        sendMessage(ChatFormatting.GRAY.toString() + ChatFormatting.STRIKETHROUGH + "--------------" + ChatFormatting.GRAY + "[" + ChatFormatting.BLUE + ChatFormatting.BOLD + " SkyblockAddons " + ChatFormatting.GRAY + "]" + ChatFormatting.GRAY + ChatFormatting.STRIKETHROUGH + "--------------");
+                        sendMessage(ChatFormatting.YELLOW + Message.MESSAGE_DEVELOPMENT_VERSION.getMessage(SkyblockAddons.VERSION, newestVersion));
+                        sendMessage(ChatFormatting.GRAY.toString() + ChatFormatting.STRIKETHROUGH + "---------------------------------------");
                         break;
                     }
                 }
@@ -299,7 +307,7 @@ public class Utils {
                     if (splitLine.length > 1) {
                         for (int i = 1; i < splitLine.length; i++) {
                             String part = splitLine[i];
-                            Feature feature = Feature.fromId(Integer.valueOf(part));
+                            Feature feature = Feature.fromId(Integer.parseInt(part));
                             if (feature != null) {
                                 disabledFeatures.add(feature);
                             }
@@ -318,9 +326,9 @@ public class Utils {
         return new Color(150, 236, 255, alpha).getRGB();
     }
 
-    public void playSound(String sound, double pitch) {
+    public void playSound(SoundEvent sound, double pitch) {
         playingSound = true;
-        Minecraft.getMinecraft().thePlayer.playSound(sound, 1, (float) pitch);
+        Minecraft.getMinecraft().player.playSound(sound, 1, (float) pitch);
         playingSound = false;
     }
 
@@ -328,11 +336,11 @@ public class Utils {
         text = text.toLowerCase();
         for (String enchant : enchantmentMatch) {
             enchant = enchant.trim().toLowerCase();
-            if (!enchant.equals("") && text.contains(enchant)) {
+            if (!"".equals(enchant) && text.contains(enchant)) {
                 boolean foundExclusion = false;
                 for (String exclusion : enchantmentExclusion) {
                     exclusion = exclusion.trim().toLowerCase();
-                    if (!exclusion.equals("") && text.contains(exclusion)) {
+                    if (!"".equals(exclusion) && text.contains(exclusion)) {
                         foundExclusion = true;
                         break;
                     }
@@ -396,12 +404,12 @@ public class Utils {
                 connection.setRequestProperty("User-Agent", USER_AGENT);
 
                 Minecraft mc = Minecraft.getMinecraft();
-                if (mc != null && mc.thePlayer != null) {
+                if (mc != null && mc.player != null) {
                     String postString;
                     if (event == EnumUtils.MagmaEvent.PING) {
-                        postString = "minecraftUser=" + mc.thePlayer.getName() + "&lastFocused=" + System.currentTimeMillis() / 1000 + "&serverId=" + serverID;
+                        postString = "minecraftUser=" + mc.player.getName() + "&lastFocused=" + System.currentTimeMillis() / 1000 + "&serverId=" + serverID;
                     } else {
-                        postString = "type=" + event.getInventiveTalentEvent() + "&isModRequest=true&minecraftUser=" + mc.thePlayer.getName() + "&serverId=" + serverID;
+                        postString = "type=" + event.getInventiveTalentEvent() + "&isModRequest=true&minecraftUser=" + mc.player.getName() + "&serverId=" + serverID;
                     }
                     connection.setDoOutput(true);
                     try (DataOutputStream out = new DataOutputStream(connection.getOutputStream())) {
@@ -452,7 +460,29 @@ public class Utils {
             }
             newString.insert(0, " ");
         }
-        return main.getUtils().removeDuplicateSpaces(newString.toString().trim());
+        return this.removeDuplicateSpaces(newString.toString().trim());
+    }
+
+    public boolean cantDropItem(ItemStack item, EnumUtils.Rarity rarity, boolean hotbar) {
+        if (hotbar) {
+            return item.getItem().isDamageable() || (rarity != EnumUtils.Rarity.COMMON && rarity != EnumUtils.Rarity.UNCOMMON)
+                    || (item.hasDisplayName() && item.getDisplayName().contains("Backpack"));
+        } else {
+            return item.getItem().isDamageable() || (rarity != EnumUtils.Rarity.COMMON && rarity != EnumUtils.Rarity.UNCOMMON
+                    && rarity != EnumUtils.Rarity.RARE) || (item.hasDisplayName() && item.getDisplayName().contains("Backpack"));
+        }
+    }
+
+    public String replaceRomanNumerals(String text) {
+        if (text != null && text.startsWith("\u00A75\u00A7o\u00A79")) {
+            text = text.replace(" VI", " 6");
+            text = text.replace(" V", " 5");
+            text = text.replace(" IV", " 4");
+            text = text.replace(" III", " 3");
+            text = text.replace(" II", " 2");
+            text = text.replace(" I", " 1");
+        }
+        return text;
     }
 
     public boolean isDevEnviroment() {
@@ -483,11 +513,11 @@ public class Utils {
         this.fadingIn = fadingIn;
     }
 
-    public BackpackInfo getBackpackToRender() {
+    public Backpack getBackpackToRender() {
         return backpackToRender;
     }
 
-    public void setBackpackToRender(BackpackInfo backpackToRender) {
+    public void setBackpackToRender(Backpack backpackToRender) {
         this.backpackToRender = backpackToRender;
     }
 

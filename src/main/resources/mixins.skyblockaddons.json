@@ -16,7 +16,6 @@
     "MixinNetHandlerPlayClient",
     "MixinMouseHelper",
     "MixinGuiInventory",
-    "MixinTileEntityEnderChestRenderer",
-    "MixinRendererLivingEntity"
+    "MixinTileEntityEnderChestRenderer"
   ]
 }

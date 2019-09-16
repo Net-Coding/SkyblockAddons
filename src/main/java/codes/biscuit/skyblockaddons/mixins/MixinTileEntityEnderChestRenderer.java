@@ -33,16 +33,16 @@ public abstract class MixinTileEntityEnderChestRenderer extends TileEntitySpecia
 //        }
 //    }
 
-    @Redirect(method = "renderTileEntityAt",
+    @Redirect(method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/tileentity/TileEntityEnderChestRenderer;bindTexture(Lnet/minecraft/util/ResourceLocation;)V",
     ordinal = 1))
-    private void bindTexture(TileEntityEnderChestRenderer tileEntityEnderChestRenderer, ResourceLocation location) {
+    public void render(TileEntityEnderChest te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
         SkyblockAddons main = SkyblockAddons.getInstance();
         if (main.getUtils().isOnSkyblock() && main.getConfigValues().isEnabled(Feature.MAKE_ENDERCHESTS_GREEN_IN_END) &&
-                (main.getUtils().getLocation() == EnumUtils.Location.THE_END || main.getUtils().getLocation() == EnumUtils.Location.DRAGONS_NEST)) {
+                (main.getUtils().getLocation() == EnumUtils.Location.THE_END || main.getUtils().getLocation() == EnumUtils.Location.DRAGONS_NEST))
             bindTexture(GREEN_ENDERCHEST);
-        } else {
+        else
             bindTexture(ENDER_CHEST_TEXTURE);
-        }
     }
+
 }

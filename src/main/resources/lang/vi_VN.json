@@ -1,8 +1,13 @@
 {
   "language": "Tiếng Việt",
   "settings": {
+    "tab": {
+      "features": "Tính năng",
+      "fixes": "Sửa lỗi",
+      "guiFeatures": "GUI Features",
+      "generalSettings": "Cài đặt chung"
+    },
     "settings": "Cài Đặt",
-    "openSettings": "Hiển Thị Thêm Cài Đặt",
     "magmaBossWarning": "Nhắc nhở Magma Boss",
     "itemDropConfirmation": "Xác Nhận Vứt Đồ",
     "hideSkeletonHatBones": "Ẩn Mũ Xương",
@@ -19,14 +24,14 @@
     "hideAuctionHousePlayers": "Ẩn Người Chơi gần Auction House",
     "backpackStyle": "Kiểu Backpack: %style%",
     "backpackStyles": {
-      "regular": "Regular",
+      "regular": "Thường",
       "compact": "Gọn"
     },
     "showBackpackPreview": "Hiện Xem Trước Backpack",
     "hideHealthBar": "Ẩn Thanh Máu Vanilla",
     "fullMinionWarning": "Cảnh Báo Minion Đầy",
     "ignoreItemFrameClicks": "Tránh chạm vào khung vật phẩm",
-    "showOnlyWhenHoldingShift": "Show Only When Holding Shift",
+    "showOnlyWhenHoldingShift": "Chỉ hiện khi giữ \"Shift\"",
     "manaBar": "Thanh Mana",
     "manaText": "Số Mana",
     "healthBar": "Thanh Máu",
@@ -34,8 +39,8 @@
     "defenceIcon": "Biểu tượng giáp",
     "defenceText": "Số Phòng Thủ",
     "defencePercentage": "Tỉ lệ Phòng Thủ",
-    "healthUpdates": "Cập nhật Máu",
-    "hidePlayersInLobby": "Hide Far Entities in Lobby",
+    "healthUpdates": "Số Máu thay đổi",
+    "hidePlayersInLobby": "Ẩn Vật Xa ở Sảnh",
     "darkAuctionTimer": "Hẹn giờ \"Đấu giá đen\"",
     "magmaBossTimer": "Hẹn giờ \"Magma Boss\"",
     "itemPickupLog": "Nhật kí nhặt đồ",
@@ -47,16 +52,21 @@
     "lockSlots": "Allow Locking Slots",
     "dontResetCursorInventory": "Don't Reset Cursor Between Inventories",
     "summoningEyeAlert": "Summoning Eye Alert",
-    "makeEnderchestsInEndGreen": "Make Enderchests in the End Green",
-    "changeColor": "Change Color",
-    "showInOtherGames": "Show in Other Games",
-    "useVanillaTexture": "Use the Vanilla Texture",
+    "makeEnderchestsInEndGreen": "Làm Cho Hòm Ender Màu Xanh Ở The End",
+    "changeColor": "Thay đổi màu sắc",
+    "showInOtherGames": "Hiện trong các trò khác",
+    "useVanillaTexture": "Sử dụng đồ họa nguyên bản",
     "textStyle": "Text Style",
     "textStyles": {
       "one": "Style One",
       "two": "Style Two"
     },
-    "warningDuration": "Warning Duration"
+    "warningDuration": "Warning Duration",
+    "dontOpenProfileWithBow": "Chặn Mở Ô Thông Tin Về Người Chơi Khác Khi Cầm Cung",
+    "stopDroppingSellingRareItems": "Stop Dropping/Selling Rare Items",
+    "makeBackpackInventoriesColored": "Đổi Màu Giao Diện Túi Đồ Của Ba Lô",
+    "avoidBreakingBottomSugarCane": "Avoid Breaking Bottom Sugar Cane",
+    "replaceRomanNumeralsWithNumbers": "Replace Roman Numerals on Items"
   },
   "messages": {
     "dropConfirmation": "Nhấn \"Q\" Thêm Một Lần Nữa Để Xác Nhận!",
@@ -76,8 +86,11 @@
       "enchants": "Phù phép",
       "reforges": "Rèn luyện"
     },
-    "cancelledStemBreak": "\"SkyblockAddons\" đã ngăn bạn khỏi việc phá hạt giống này. Hãy sử dụng tay không nếu bạn muốn đập nó.",
     "slotLocked": "This slot is locked!",
-    "summoningEyeFound": "Summoning Eye!"
+    "summoningEyeFound": "Mắt Triệu Hồi!",
+    "cancelledStemBreak": "SkyblockAddons Đã Ngăn Bạn Phá Hạt Giống Này. Hãy Dùng Tay Không Nếu Bạn Muốn Phá Nó.",
+    "cancelledProfileOpening": "SkyblockAddons Đã Ngăn Bạn Xem Thông Về Người Chơi Này Khi Bạn Đang Cầm Cung.",
+    "cancelledDropping": "SkyblockAddons has stopped you from dropping this rare item or tool from your hotbar.",
+    "clickMoreTimes": "Bấm/Thả Đồ Vật Này Thêm %times% Lần Nữa Nếu Bạn Muốn Thực Hiện Điều Này."
   }
 }

@@ -82,16 +82,16 @@ public class SettingsGui extends GuiScreen {
         int x = sr.getScaledWidth()/2;
         int y = 70;
         String text = "Features";
-        buttonList.add(new ButtonSwitchTab(x-180, y, (int)(fontRendererObj.getStringWidth(text)*textScale),
+        buttonList.add(new ButtonSwitchTab(x-180, y, (int)(fontRenderer.getStringWidth(text)*textScale),
                 14, text, main, EnumUtils.SkyblockAddonsGuiTab.FEATURES, null));
         text = "Fixes";
-        buttonList.add(new ButtonSwitchTab(x-80, y, (int)(fontRendererObj.getStringWidth(text)*textScale),
+        buttonList.add(new ButtonSwitchTab(x-80, y, (int)(fontRenderer.getStringWidth(text)*textScale),
                 14, text, main, EnumUtils.SkyblockAddonsGuiTab.FIXES, null));
         text = "GUI Features";
-        buttonList.add(new ButtonSwitchTab(x-20, y, (int)(fontRendererObj.getStringWidth(text)*textScale),
+        buttonList.add(new ButtonSwitchTab(x-20, y, (int)(fontRenderer.getStringWidth(text)*textScale),
                 14, text, main, EnumUtils.SkyblockAddonsGuiTab.GUI_FEATURES, null));
         text = "General Settings";
-        buttonList.add(new ButtonSwitchTab(x+90, y, (int)(fontRendererObj.getStringWidth(text)*textScale),
+        buttonList.add(new ButtonSwitchTab(x+90, y, (int)(fontRenderer.getStringWidth(text)*textScale),
                 14, text, main, EnumUtils.SkyblockAddonsGuiTab.GENERAL_SETTINGS, null));
     }
 
@@ -207,10 +207,10 @@ public class SettingsGui extends GuiScreen {
      * To avoid repeating the code for scaled text, use this instead.
      */
     private void drawScaledString(String text, int y, int color, double scale, int xOff) {
-        double x = width/2;
+        double x = width/2.0;
         GlStateManager.pushMatrix();
         GlStateManager.scale(scale, scale, 1);
-        drawCenteredString(fontRendererObj, text,
+        drawCenteredString(fontRenderer, text,
                 (int)(x/scale)+xOff, (int)(y/scale), color);
         GlStateManager.popMatrix();
     }
@@ -270,7 +270,12 @@ public class SettingsGui extends GuiScreen {
             boxWidth = 31;
             x = halfWidth - (boxWidth / 2);
             y = getRowHeightSetting(row);
-            buttonList.add(new ButtonToggleTitle(x, y, Message.SETTING_USE_VANILLA_TEXTURE.getMessage(), main, Feature.SHOW_BACKPACK_HOLDING_SHIFT));
+            buttonList.add(new ButtonToggleTitle(x, y, Message.SETTING_SHOW_ONLY_WHEN_HOLDING_SHIFT.getMessage(), main, Feature.SHOW_BACKPACK_HOLDING_SHIFT));
+        } else if (setting == EnumUtils.FeatureSetting.MAKE_INVENTORY_COLORED) {
+            boxWidth = 31;
+            x = halfWidth - (boxWidth / 2);
+            y = getRowHeightSetting(row);
+            buttonList.add(new ButtonToggleTitle(x, y, Message.SETTING_MAKE_BACKPACK_INVENTORIES_COLORED.getMessage(), main, Feature.MAKE_BACKPACK_INVENTORIES_COLORED));
         } else if (setting == EnumUtils.FeatureSetting.BACKPACK_STYLE) {
             boxWidth = 140;
             x = halfWidth-(boxWidth/2);

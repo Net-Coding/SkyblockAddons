@@ -2,8 +2,9 @@ package codes.biscuit.skyblockaddons.utils;
 
 import codes.biscuit.skyblockaddons.SkyblockAddons;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -105,22 +106,6 @@ public class EnumUtils {
 
         public String getMessage() {
             return message.getMessage();
-        }
-    }
-
-    public enum Backpack {
-        SMALL("Small Backpack"),
-        MEDIUM("Medium Backpack"),
-        LARGE("Large Backpack");
-
-        private String itemName;
-
-        Backpack(String itemName) {
-            this.itemName = itemName;
-        }
-
-        public String getItemName() {
-            return itemName;
         }
     }
 
@@ -237,6 +222,7 @@ public class EnumUtils {
         LOBBY_SELECTOR(-9,70,-79, Location.VILLAGE),
         SIRIUS(91.5,75,176.5, Location.WILDERNESS);
 
+        private final int hideRadius = 3;
         private AxisAlignedBB hideArea;
         private double x;
         private double y;
@@ -247,8 +233,24 @@ public class EnumUtils {
             this.x = x;
             this.y = y;
             this.z = z;
-            hideArea = new AxisAlignedBB(x-3, y-3, z-3, x+3, y+3, z+3);
+            hideArea = new AxisAlignedBB(x - hideRadius, y - hideRadius, z - hideRadius, x + hideRadius, y + hideRadius, z + hideRadius);
             this.locations = EnumSet.copyOf(Arrays.asList(locations));
+        }
+
+        public boolean isAtLocation(Location location) {
+            return this.locations.contains(location);
+        }
+
+        public boolean isNearEntity(Entity entity) {
+            if (this.locations.contains(SkyblockAddons.getInstance().getUtils().getLocation())) {
+                double x = entity.posX;
+                double y = entity.posY;
+                double z = entity.posZ;
+
+                return this.hideArea.contains(new Vec3d(x, y, z)) && (this.x != x || this.y != y || this.z != z);
+            }
+
+            return false;
         }
 
 //        public static boolean isNPC(double x, double y, double z) {
@@ -260,18 +262,21 @@ public class EnumUtils {
 //            return false;
 //        }
 
-        public static boolean isNearNPC(Entity e) {
+        public static boolean isNearAnyNPC(Entity e) {
             for (SkyblockNPC npc : values()) {
                 if (npc.locations.contains(SkyblockAddons.getInstance().getUtils().getLocation())) {
-                    double x = e.posX; double y = e.posY; double z = e.posZ;
-                    if (npc.hideArea.isVecInside(new Vec3(x, y,z))
-                            && (npc.x != x || npc.y != y || npc.z != z)) {
+                    double x = e.posX;
+                    double y = e.posY;
+                    double z = e.posZ;
+
+                    if (npc.hideArea.contains(new Vec3d(x, y, z)) && (npc.x != x || npc.y != y || npc.z != z))
                         return true;
-                    }
                 }
             }
+
             return false;
         }
+
     }
 
     public enum SkyblockAddonsGuiTab {
@@ -283,8 +288,62 @@ public class EnumUtils {
         GUI_SCALE,
         ENABLED_IN_OTHER_GAMES,
         USE_VANILLA_TEXTURE,
-//        WARNING_TIME,
+        //        WARNING_TIME,
         BACKPACK_STYLE,
-        SHOW_ONLY_WHEN_HOLDING_SHIFT
+        SHOW_ONLY_WHEN_HOLDING_SHIFT,
+        MAKE_INVENTORY_COLORED
     }
+
+    public enum Merchant {
+
+        ADVENTURER("Adventurer"),
+        BUILDER("Builder"),
+        WEAPONSMITH("Weaponsmith"),
+        ARMORSMITH("Armorsmith"),
+        GOLD_FORGER("Gold Forger"),
+        IRON_FORGER("Iron Forger");
+
+        private String name;
+
+        Merchant(String name) {
+            this.name = name;
+        }
+
+        public static boolean isMerchant(String name) {
+            for (Merchant merchant : values()) {
+                if (name.equals(merchant.name)) {
+                    return true;
+                }
+            }
+            return name.contains("Merchant");
+        }
+
+    }
+
+    public enum Rarity {
+
+        COMMON("f"),
+        UNCOMMON("a"),
+        RARE("9"),
+        EPIC("5"),
+        LEGENDARY("6"),
+        SPECIAL("d");
+
+        private String tag;
+
+        Rarity(String s) {
+            this.tag = "\u00A7" + s;
+        }
+
+        public static Rarity getRarity(ItemStack item) {
+            if (item == null) return null;
+            String itemName = item.getDisplayName();
+            for (Rarity rarity: Rarity.values()) {
+                if(itemName.startsWith(rarity.tag)) return rarity;
+            }
+            return null;
+        }
+
+    }
+
 }

@@ -1,8 +1,13 @@
 {
   "language": "Deutsch",
   "settings": {
+    "tab": {
+      "features": "Funktionen",
+      "fixes": "Fehlerbehebungen",
+      "guiFeatures": "GUI-Funktionen",
+      "generalSettings": "Allgemeine Einstellungen"
+    },
     "settings": "Einstellungen",
-    "openSettings": "Zusätzliche Einstellungen",
     "magmaBossWarning": "Magma Boss Spawn Warnung",
     "itemDropConfirmation": "Item Auswurf Bestätigung",
     "hideSkeletonHatBones": "Skelett-Helm Knochen verstecken",
@@ -19,14 +24,14 @@
     "hideAuctionHousePlayers": "Spieler im Auktionshaus verstecken",
     "backpackStyle": "Rucksack-Stil: %style%",
     "backpackStyles": {
-      "regular": "Regular",
+      "regular": "Normal",
       "compact": "Kompakt"
     },
     "showBackpackPreview": "Rucksack-Vorschau zeigen",
     "hideHealthBar": "Lebensleiste verstecken",
     "fullMinionWarning": "Warnung bei vollem Minion",
     "ignoreItemFrameClicks": "Klicks auf Gegenstandsrahmen ignorieren",
-    "showOnlyWhenHoldingShift": "Show Only When Holding Shift",
+    "showOnlyWhenHoldingShift": "Nur beim Halten von Shift anzeigen",
     "manaBar": "Mana-Leiste",
     "manaText": "Mana-Anzahl",
     "healthBar": "Lebensleiste",
@@ -35,7 +40,7 @@
     "defenceText": "Verteidigungs-Zahl",
     "defencePercentage": "Verteidigungs-Prozentsatz",
     "healthUpdates": "Lebens-Veränderungs-Zahl",
-    "hidePlayersInLobby": "Hide Far Entities in Lobby",
+    "hidePlayersInLobby": "Verstecke weit entfernte Spieler in der Lobby",
     "darkAuctionTimer": "Dunkelauktionstimer",
     "magmaBossTimer": "Magma Boss Timer",
     "itemPickupLog": "Aufgehobene Items-Liste",
@@ -44,19 +49,24 @@
     "stopBowChargeFromResetting": "Verhindere das Zurücksetzen des Bogenladens",
     "preventMovementOnDeath": "Verhindere das Laufen nach dem Tot",
     "showItemAnvilUses": "Zeige Ambossnutzungen eines Items",
-    "lockSlots": "Slots sperren erlauben",
+    "lockSlots": "Sperren von Slots erlauben",
     "dontResetCursorInventory": "Mauszeiger zwischen Inventaren nicht zurücksetzen",
     "summoningEyeAlert": "Summoning Eye Alarm",
-    "makeEnderchestsInEndGreen": "Make Enderchests in the End Green",
-    "changeColor": "Change Color",
-    "showInOtherGames": "Show in Other Games",
-    "useVanillaTexture": "Use the Vanilla Texture",
-    "textStyle": "Text Style",
+    "makeEnderchestsInEndGreen": "Färbe Endertruhen im End grün",
+    "changeColor": "Farbe ändern",
+    "showInOtherGames": "In anderen Spielen anzeigen",
+    "useVanillaTexture": "Vanilla Textur benutzen",
+    "textStyle": "Text Stil",
     "textStyles": {
-      "one": "Style One",
-      "two": "Style Two"
+      "one": "Stil Eins",
+      "two": "Stil Zwei"
     },
-    "warningDuration": "Warning Duration"
+    "warningDuration": "Warnungsdauer",
+    "dontOpenProfileWithBow": "Profile nicht mit dem Bogen öffnen",
+    "stopDroppingSellingRareItems": "Stoppe entfernen/verkaufen von seltenen Items",
+    "makeBackpackInventoriesColored": "Farbige Inventare",
+    "avoidBreakingBottomSugarCane": "Zerstören des Zuckerrohrs blockieren",
+    "replaceRomanNumeralsWithNumbers": "Ersetze Römische Nummern auf Gegenständen"
   },
   "messages": {
     "dropConfirmation": "Werfe diesen Gegenstand nochmal, um zu bestätigen!",
@@ -76,8 +86,11 @@
       "enchants": "Verzauberungen",
       "reforges": "Verbesserungen"
     },
-    "cancelledStemBreak": "SkyblockAddons hat dich davon abgehalten, diesen Stamm zu zerstören. Nutze deine leere Hand um ihn trotzdem zu zerstören.",
     "slotLocked": "Dieser Slot ist gesperrt!",
-    "summoningEyeFound": "Beschwörungsauge!"
+    "summoningEyeFound": "Beschwörungsauge!",
+    "cancelledStemBreak": "SkyblockAddons hat dich davon abgehalten, diesen Stamm zu zerstören. Nutze deine Hand um ihn trotzdem zu zerstören.",
+    "cancelledProfileOpening": "SkyblockAddons hat dich davon abgehalten, das Profil dieses Spielers zu öffnen, während du einen Bogen hältst.",
+    "cancelledDropping": "SkyblockAddons hat dich davon abgehalten, dieses seltene Item oder Werkzeug aus deiner Hotbar zu entfernen.",
+    "clickMoreTimes": "Klicke/entferne dieses Item %times% mal mehr, wenn du das wirklich tun möchtest."
   }
 }

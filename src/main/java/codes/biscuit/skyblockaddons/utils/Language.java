@@ -9,6 +9,7 @@ public enum Language {
     CHINESE_SIMPLIFIED("zh_CN"),
     CROATIAN("hr_HR"),
     CZECH("cs_CZ"),
+    DANISH("da_DK"),
     DUTCH_NETHERLANDS("nl_NL"),
     ENGLISH("en_us"),
     FILIPINO("fil_PH"),
@@ -33,7 +34,7 @@ public enum Language {
     TURKISH("tr_TR"),
     VIETNAMESE("vi_VN");
 
-    private String path;
+    private final String path;
 
     Language(String path) {
         this.path = path;

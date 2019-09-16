@@ -1,8 +1,13 @@
 {
   "language": "Suomi",
   "settings": {
+    "tab": {
+      "features": "Ominaisuudet: Features",
+      "fixes": "Korjattu",
+      "guiFeatures": "GUI Features",
+      "generalSettings": "General Settings"
+    },
     "settings": "Asetukset",
-    "openSettings": "Avaa Lisää Asetuksia",
     "magmaBossWarning": "Magma Boss Varoitus",
     "itemDropConfirmation": "Esineen Pudotusvahvistus",
     "hideSkeletonHatBones": "Piilota Luurankohatun Luut",
@@ -56,7 +61,12 @@
       "one": "Style One",
       "two": "Style Two"
     },
-    "warningDuration": "Warning Duration"
+    "warningDuration": "Warning Duration",
+    "dontOpenProfileWithBow": "Don't Open Profile With Bow",
+    "stopDroppingSellingRareItems": "Stop Dropping/Selling Rare Items",
+    "makeBackpackInventoriesColored": "Color Inventories",
+    "avoidBreakingBottomSugarCane": "Avoid Breaking Bottom Sugar Cane",
+    "replaceRomanNumeralsWithNumbers": "Replace Roman Numerals on Items"
   },
   "messages": {
     "dropConfirmation": "Pudota tämä esine uudelleen vahvistaaksesi!",
@@ -76,8 +86,11 @@
       "enchants": "Enchants",
       "reforges": "Reforges"
     },
-    "cancelledStemBreak": "SkyblockAddons has stopped you from breaking this stem. Use your bare hand if you'd like to break it.",
     "slotLocked": "This slot is locked!",
-    "summoningEyeFound": "Summoning Eye!"
+    "summoningEyeFound": "Summoning Eye!",
+    "cancelledStemBreak": "SkyblockAddons has stopped you from breaking this. Use your bare hand if you'd like to actually break it.",
+    "cancelledProfileOpening": "SkyblockAddons has stopped you from opening this player's profile while holding a bow.",
+    "cancelledDropping": "SkyblockAddons has stopped you from dropping this rare item or tool from your hotbar.",
+    "clickMoreTimes": "Click/drop this item %times% more times if you really want to do this."
   }
 }

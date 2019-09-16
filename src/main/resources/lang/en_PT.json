@@ -1,8 +1,13 @@
 {
   "language": "Ye Old Englishe",
   "settings": {
+    "tab": {
+      "features": "Feat'rs",
+      "fixes": "Fixes",
+      "guiFeatures": "GUI Feat'rs",
+      "generalSettings": "Yer General Settin's"
+    },
     "settings": "Yer Choice o' Settin's",
-    "openSettings": "Ye extra settin's",
     "magmaBossWarning": "Fire Boss Warnin'",
     "itemDropConfirmation": "Drop Ye Items Twice",
     "hideSkeletonHatBones": "Swab Yer Cap o' Bones",
@@ -19,14 +24,14 @@
     "hideAuctionHousePlayers": "'ide Mateys nearrr Auction 'ouse",
     "backpackStyle": "Style o' Yer Booty: %style%",
     "backpackStyles": {
-      "regular": "Regular",
+      "regular": "Regularrr",
       "compact": "Treasured"
     },
     "showBackpackPreview": "Preview yer' booty",
     "hideHealthBar": "'ide normal 'ealth barr",
     "fullMinionWarning": "Yer Minion Stuffed Warnin'",
     "ignoreItemFrameClicks": "Swab yer' Item Frame Clicks",
-    "showOnlyWhenHoldingShift": "Show Only When Holding Shift",
+    "showOnlyWhenHoldingShift": "Show Only When 'oldin' shift",
     "manaBar": "Ye' Energy Bar",
     "manaText": "Ye' Energy Num'r",
     "healthBar": "Yer Health Bar",
@@ -35,7 +40,7 @@
     "defenceText": "Yer' Defense Num'r",
     "defencePercentage": "Amount O' Defense Percentage",
     "healthUpdates": "Yer Health Change Num'r",
-    "hidePlayersInLobby": "Hide Far Entities in Lobby",
+    "hidePlayersInLobby": "'ide farrr things in yer Lobby",
     "darkAuctionTimer": "Darr'k Booties Tim'r",
     "magmaBossTimer": "Fire Boss Tim'r",
     "itemPickupLog": "Item Pickup Log",
@@ -47,16 +52,21 @@
     "lockSlots": "Allow Lockin' yer Slots",
     "dontResetCursorInventory": "Don't reset yer cursor between inventories",
     "summoningEyeAlert": "Ye Ol' Summonin' Aye Alert",
-    "makeEnderchestsInEndGreen": "Make Enderchests in the End Green",
-    "changeColor": "Change Color",
+    "makeEnderchestsInEndGreen": "Make them Enderchests in this 'ere End Green",
+    "changeColor": "Change yer Col'r",
     "showInOtherGames": "Show in Other Games",
-    "useVanillaTexture": "Use the Vanilla Texture",
-    "textStyle": "Text Style",
+    "useVanillaTexture": "Use yer Normal Text're",
+    "textStyle": "yer Style o' Text",
     "textStyles": {
-      "one": "Style One",
-      "two": "Style Two"
+      "one": "yer' Fr'st Style",
+      "two": "yer Sec'nd option"
     },
-    "warningDuration": "Warning Duration"
+    "warningDuration": "Warnin' Derratin'",
+    "dontOpenProfileWithBow": "Don't Open yer mates' profiles wit' Bow",
+    "stopDroppingSellingRareItems": "Avast droppin'/sellin' ye rare items",
+    "makeBackpackInventoriesColored": "Col'r yer Booty",
+    "avoidBreakingBottomSugarCane": "Avast breakin' bottom o' Sugarrr Cane",
+    "replaceRomanNumeralsWithNumbers": "Replace Roman Numerals on yer Items"
   },
   "messages": {
     "dropConfirmation": "'ay lad, drop this here item again to confirm!",
@@ -76,8 +86,11 @@
       "enchants": "Yer magic",
       "reforges": "Reforgery"
     },
-    "cancelledStemBreak": "'ay there, SkyblockAddons 'as stopped ye from breakin' this here stem. Use yer bare hand if ye'd like to break it.",
     "slotLocked": "Ahoy, matey! This here slot be locked!",
-    "summoningEyeFound": "Summinin' Aye!"
+    "summoningEyeFound": "Summinin' Aye!",
+    "cancelledStemBreak": "'ay there, SkyblockAddons 'as stopped ye from breakin' this here stem. Use yer bare hand if ye'd like to break it.",
+    "cancelledProfileOpening": "'ay there lad! SkyblockAddons 'as stopped ye from openin' this here player's profile while oldin' a bow.",
+    "cancelledDropping": "'ay mate! SkyblockAddons 'as stopped ye from droppin' this here Rare Item or Tool from yer 'otbarrr.",
+    "clickMoreTimes": "'ay lad, Click/Drop this here item %times% more times if ye really wants t' do this."
   }
 }

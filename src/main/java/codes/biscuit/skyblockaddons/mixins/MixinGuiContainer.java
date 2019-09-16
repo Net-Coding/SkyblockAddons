@@ -2,7 +2,13 @@ package codes.biscuit.skyblockaddons.mixins;
 
 import codes.biscuit.skyblockaddons.SkyblockAddons;
 import codes.biscuit.skyblockaddons.listeners.RenderListener;
-import codes.biscuit.skyblockaddons.utils.*;
+import codes.biscuit.skyblockaddons.utils.Backpack;
+import codes.biscuit.skyblockaddons.utils.BackpackColor;
+import codes.biscuit.skyblockaddons.utils.ConfigColor;
+import codes.biscuit.skyblockaddons.utils.EnchantPair;
+import codes.biscuit.skyblockaddons.utils.EnumUtils;
+import codes.biscuit.skyblockaddons.utils.Feature;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -11,11 +17,15 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.ContainerDispenser;
+import net.minecraft.inventory.ContainerHopper;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -35,32 +45,33 @@ import java.util.regex.Pattern;
 @Mixin(GuiContainer.class)
 public class MixinGuiContainer extends GuiScreen {
 
-    @Shadow private Slot theSlot;
+    @Shadow
+    private Slot hoveredSlot; // TODO
     private ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
     private EnchantPair reforgeToRender = null;
     private Set<EnchantPair> enchantsToRender = new HashSet<>();
 
-    @Inject(method = "drawSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/RenderItem;renderItemOverlayIntoGUI(Lnet/minecraft/client/gui/FontRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V",
+    @Inject(method = "drawSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderItem;renderItemOverlayIntoGUI(Lnet/minecraft/client/gui/FontRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V",
             ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void shouldRenderSaveSlots(Slot slotIn, CallbackInfo ci, int x, int y, ItemStack item, boolean flag, boolean flag1,
-                                      ItemStack itemstack1, String s) {
+                                       ItemStack itemstack1, String s) {
         SkyblockAddons main = SkyblockAddons.getInstance();
         if (main.getConfigValues().isEnabled(Feature.SHOW_ENCHANTMENTS_REFORGES)) {
             Minecraft mc = Minecraft.getMinecraft();
-            FontRenderer fr = mc.fontRendererObj;
+            FontRenderer fr = mc.fontRenderer;
             if (item != null && item.hasDisplayName()) {
-                if (item.getDisplayName().startsWith(EnumChatFormatting.GREEN + "Enchant Item")) {
-                    List<String> toolip = item.getTooltip(mc.thePlayer, false);
+                if (item.getDisplayName().startsWith(ChatFormatting.GREEN + "Enchant Item")) {
+                    List<String> toolip = item.getTooltip(mc.player, ITooltipFlag.TooltipFlags.NORMAL);
                     if (toolip.size() > 2) {
                         String enchantLine = toolip.get(2);
                         String toMatch = enchantLine.split(Pattern.quote("* "))[1];
-//                        String enchant = EnumChatFormatting.YELLOW + enchantLine.split(Pattern.quote("* "))[1];
+//                        String enchant = ChatFormatting.YELLOW + enchantLine.split(Pattern.quote("* "))[1];
                         String enchant;
-                        if (main.getUtils().getEnchantmentMatch().size() > 0 &&
+                        if (!main.getUtils().getEnchantmentMatch().isEmpty() &&
                                 main.getUtils().enchantReforgeMatches(toMatch)) {
-                            enchant = EnumChatFormatting.RED + enchantLine.split(Pattern.quote("* "))[1];
+                            enchant = ChatFormatting.RED + enchantLine.split(Pattern.quote("* "))[1];
                         } else {
-                            enchant = EnumChatFormatting.YELLOW + enchantLine.split(Pattern.quote("* "))[1];
+                            enchant = ChatFormatting.YELLOW + enchantLine.split(Pattern.quote("* "))[1];
                         }
                         float yOff;
                         if (slotIn.slotNumber == 29 || slotIn.slotNumber == 33) {
@@ -69,22 +80,22 @@ public class MixinGuiContainer extends GuiScreen {
                             yOff = 36;
                         }
                         float scaleMultiplier = 1 / 0.75F;
-                        float halfStringWidth = fr.getStringWidth(enchant) / 2;
+                        float halfStringWidth = fr.getStringWidth(enchant) / 2f;
                         x += 8; // to center it
                         enchantsToRender.add(new EnchantPair(x * scaleMultiplier - halfStringWidth, y * scaleMultiplier + yOff, enchant));
                     }
-                } else if (slotIn.inventory.getDisplayName().getUnformattedText().equals("Reforge Item") && slotIn.slotNumber == 13) {
+                } else if ("Reforge Item".equals(slotIn.inventory.getDisplayName().getUnformattedText()) && slotIn.slotNumber == 13) {
                     String reforge = main.getUtils().getReforgeFromItem(item);
                     if (reforge != null) {
-                        if (main.getUtils().getEnchantmentMatch().size() > 0 &&
+                        if (!main.getUtils().getEnchantmentMatch().isEmpty() &&
                                 main.getUtils().enchantReforgeMatches(reforge)) {
-                            reforge = EnumChatFormatting.RED + reforge;
+                            reforge = ChatFormatting.RED + reforge;
                         } else {
-                            reforge = EnumChatFormatting.YELLOW + reforge;
+                            reforge = ChatFormatting.YELLOW + reforge;
                         }
                         x -= 28;
                         y += 22;
-                        float halfStringWidth = fr.getStringWidth(reforge) / 2;
+                        float halfStringWidth = fr.getStringWidth(reforge) / 2f;
                         reforgeToRender = new EnchantPair(x - halfStringWidth, y, reforge);
                     }
                 }
@@ -108,7 +119,6 @@ public class MixinGuiContainer extends GuiScreen {
                 }
                 GlStateManager.enableLighting();
                 GlStateManager.enableDepth();
-
                 GlStateManager.popMatrix();
             }
         }
@@ -116,39 +126,51 @@ public class MixinGuiContainer extends GuiScreen {
 
     @Inject(method = "drawScreen", at = @At(value = "RETURN"))
     private void drawBackpacks(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
-        BackpackInfo backpackInfo = SkyblockAddons.getInstance().getUtils().getBackpackToRender();
-        if (backpackInfo != null) {
-            int x = backpackInfo.getX();
-            int y = backpackInfo.getY();
-            ItemStack[] items = backpackInfo.getItems();
-            EnumUtils.Backpack backpack = backpackInfo.getBackpack();
+        SkyblockAddons main = SkyblockAddons.getInstance();
+        Backpack backpack = main.getUtils().getBackpackToRender();
+
+        if (backpack != null) {
+            int x = backpack.getX();
+            int y = backpack.getY();
+            ItemStack[] items = backpack.getItems();
             int length = items.length;
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            if (SkyblockAddons.getInstance().getConfigValues().getBackpackStyle() == EnumUtils.BackpackStyle.GUI) {
+
+            if (main.getConfigValues().getBackpackStyle() == EnumUtils.BackpackStyle.GUI) {
                 this.mc.getTextureManager().bindTexture(CHEST_GUI_TEXTURE);
                 int rows = length/9;
                 GlStateManager.disableLighting();
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(0,0,300);
+                int textColor = 4210752;
+
+                if (main.getConfigValues().isEnabled(Feature.MAKE_BACKPACK_INVENTORIES_COLORED)) {
+                    BackpackColor color = backpack.getBackpackColor();
+                    GlStateManager.color(color.getR(), color.getG(), color.getB(), 1);
+                    textColor = color.getTextColor();
+                }
+
                 drawTexturedModalRect(x, y, 0, 0, 176, rows * 18 + 17);
                 drawTexturedModalRect(x, y + rows * 18 + 17, 0, 215, 176, 7);
-                fontRendererObj.drawString(backpack.getItemName(), x+8, y+6, 4210752);
+                fontRenderer.drawString(backpack.getBackpackName(), x+8, y+6, textColor);
                 GlStateManager.popMatrix();
                 GlStateManager.enableLighting();
 
                 RenderHelper.enableGUIStandardItemLighting();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 GlStateManager.enableRescaleNormal();
+
                 for (int i = 0; i < length; i++) {
                     ItemStack item = items[i];
+
                     if (item != null) {
                         int itemX = x+8 + ((i % 9) * 18);
                         int itemY = y+18 + ((i / 9) * 18);
-                        RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+                        RenderItem renderItem = mc.getRenderItem();
                         zLevel = 200;
                         renderItem.zLevel = 200;
                         renderItem.renderItemAndEffectIntoGUI(item, itemX, itemY);
-                        renderItem.renderItemOverlayIntoGUI(Minecraft.getMinecraft().fontRendererObj, item, itemX, itemY, null);
+                        renderItem.renderItemOverlayIntoGUI(mc.fontRenderer, item, itemX, itemY, null);
                         zLevel = 0;
                         renderItem.zLevel = 0;
                     }
@@ -164,22 +186,25 @@ public class MixinGuiContainer extends GuiScreen {
                 RenderHelper.enableGUIStandardItemLighting();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 GlStateManager.enableRescaleNormal();
+
                 for (int i = 0; i < length; i++) {
                     ItemStack item = items[i];
+
                     if (item != null) {
                         int itemX = x + ((i % 9) * 16);
                         int itemY = y + ((i / 9) * 16);
-                        RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+                        RenderItem renderItem = mc.getRenderItem();
                         zLevel = 200;
                         renderItem.zLevel = 200;
                         renderItem.renderItemAndEffectIntoGUI(item, itemX, itemY);
-                        renderItem.renderItemOverlayIntoGUI(Minecraft.getMinecraft().fontRendererObj, item, itemX, itemY, null);
+                        renderItem.renderItemOverlayIntoGUI(mc.fontRenderer, item, itemX, itemY, null);
                         zLevel = 0;
                         renderItem.zLevel = 0;
                     }
                 }
             }
-            SkyblockAddons.getInstance().getUtils().setBackpackToRender(null);
+
+            main.getUtils().setBackpackToRender(null);
             GlStateManager.enableLighting();
             GlStateManager.enableDepth();
             RenderHelper.enableStandardItemLighting();
@@ -196,13 +221,21 @@ public class MixinGuiContainer extends GuiScreen {
     @Redirect(method="drawScreen", at=@At(value = "INVOKE", target = "Lnet/minecraft/client/gui/inventory/GuiContainer;drawGradientRect(IIIIII)V", ordinal = 0))
     private void drawGradientRect(GuiContainer guiContainer, int left, int top, int right, int bottom, int startColor, int endColor) {
         SkyblockAddons main = SkyblockAddons.getInstance();
-        int slotNum = theSlot.slotNumber;
-        if (mc.thePlayer.openContainer instanceof ContainerChest) {
-            slotNum -= ((ContainerChest)mc.thePlayer.openContainer).getLowerChestInventory().getSizeInventory()-9;
+        int slotNum = hoveredSlot.slotNumber;
+        Container container = mc.player.openContainer;
+
+        // TODO: Possible cancer code
+        if (container instanceof ContainerChest) {
+            slotNum -= ((ContainerChest)container).getLowerChestInventory().getSizeInventory()-9;
+            if (slotNum < 9) return;
+        } else if (container instanceof ContainerHopper) {
+            slotNum -= 4;
+            if (slotNum < 5) return;
+        } else if (container instanceof ContainerDispenser) {
             if (slotNum < 9) return;
         }
         main.getUtils().setLastHoveredSlot(slotNum);
-        if (theSlot != null && main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) &&
+        if (hoveredSlot != null && main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) &&
                 main.getUtils().isOnSkyblock() && main.getConfigValues().getLockedSlots().contains(slotNum)) {
             int red = ConfigColor.RED.getColor(127);
             drawGradientRect(left,top,right,bottom,red,red);
@@ -218,8 +251,14 @@ public class MixinGuiContainer extends GuiScreen {
         if (slot != null && main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) &&
                 main.getUtils().isOnSkyblock()) {
             int slotNum = slot.slotNumber;
-            if (mc.thePlayer.openContainer instanceof ContainerChest) {
-                slotNum -= ((ContainerChest)mc.thePlayer.openContainer).getLowerChestInventory().getSizeInventory()-9;
+            Container container = mc.player.openContainer;
+            if (container instanceof ContainerChest) {
+                slotNum -= ((ContainerChest)container).getLowerChestInventory().getSizeInventory()-9;
+                if (slotNum < 9) return;
+            } else if (container instanceof ContainerHopper) {
+                slotNum -= 4;
+                if (slotNum < 5) return;
+            } else if (container instanceof ContainerDispenser) {
                 if (slotNum < 9) return;
             }
             if (main.getConfigValues().getLockedSlots().contains(slotNum)) {
@@ -228,7 +267,7 @@ public class MixinGuiContainer extends GuiScreen {
                 GlStateManager.color(1,1,1,0.4F);
                 GlStateManager.enableBlend();
                 Minecraft.getMinecraft().getTextureManager().bindTexture(RenderListener.LOCK);
-                mc.ingameGUI.drawTexturedModalRect(slot.xDisplayPosition, slot.yDisplayPosition, 0, 0, 16, 16);
+                mc.ingameGUI.drawTexturedModalRect(slot.xPos, slot.yPos, 0, 0, 16, 16);
                 GlStateManager.enableLighting();
                 GlStateManager.enableDepth();
             }
@@ -239,30 +278,40 @@ public class MixinGuiContainer extends GuiScreen {
             ordinal = 0, shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private void keyTyped(char typedChar, int keyCode, CallbackInfo ci) {
         SkyblockAddons main = SkyblockAddons.getInstance();
-        int slot = main.getUtils().getLastHoveredSlot();
-        if (mc.thePlayer.inventory.getItemStack() == null && theSlot != null) {
-            for (int i = 0; i < 9; ++i) {
-                if (keyCode == this.mc.gameSettings.keyBindsHotbar[i].getKeyCode()) {
-                    slot = i+36; // They are hotkeying, the actual slot is the targeted one, +36 because
+
+        if (main.getUtils().isOnSkyblock()) {
+            if (main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) && (keyCode != 1 && keyCode != this.mc.gameSettings.keyBindInventory.getKeyCode())) {
+                int slot = main.getUtils().getLastHoveredSlot();
+                if (mc.player.inventory.getItemStack() == null && this.hoveredSlot != null) {
+                    for (int i = 0; i < 9; ++i) {
+                        if (keyCode == this.mc.gameSettings.keyBindsHotbar[i].getKeyCode()) {
+                            slot = i + 36; // They are hotkeying, the actual slot is the targeted one, +36 because
+                        }
+                    }
+                }
+                if (slot >= 9 || (slot >= 5 && mc.currentScreen instanceof GuiInventory)) {
+                    if (main.getConfigValues().getLockedSlots().contains(slot)) {
+                        if (main.getLockSlot().getKeyCode() == keyCode) {
+                            main.getUtils().playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1);
+                            main.getConfigValues().getLockedSlots().remove(slot);
+                            main.getConfigValues().saveConfig();
+                        } else {
+                            main.getUtils().playSound(SoundEvents.BLOCK_NOTE_BASS, 0.5);
+                            ci.cancel(); // slot is locked
+                            return;
+                        }
+                    } else {
+                        if (main.getLockSlot().getKeyCode() == keyCode) {
+                            main.getUtils().playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1);
+                            main.getConfigValues().getLockedSlots().add(slot);
+                            main.getConfigValues().saveConfig();
+                        }
+                    }
                 }
             }
-        }
-        if (slot >= 9 || (slot >= 5 && mc.currentScreen instanceof GuiInventory)) {
-            if (main.getConfigValues().getLockedSlots().contains(slot)) {
-                if (main.getLockSlot().getKeyCode() == keyCode) {
-                    main.getUtils().playSound("random.orb", 1);
-                    main.getConfigValues().getLockedSlots().remove(slot);
-                    main.getConfigValues().saveConfig();
-                } else {
-                    main.getUtils().playSound("note.bass", 0.5);
-                    ci.cancel(); // slot is locked
-                }
-            } else {
-                if (main.getLockSlot().getKeyCode() == keyCode) {
-                    main.getUtils().playSound("random.orb", 0.1);
-                    main.getConfigValues().getLockedSlots().add(slot);
-                    main.getConfigValues().saveConfig();
-                }
+            if (mc.gameSettings.keyBindDrop.getKeyCode() == keyCode && main.getConfigValues().isEnabled(Feature.STOP_DROPPING_SELLING_RARE_ITEMS)) {
+                if (main.getInventoryUtils().shouldCancelDrop(this.hoveredSlot))
+                    ci.cancel();
             }
         }
     }
