@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 public class MixinGuiContainer extends GuiScreen {
 
     @Shadow
-    private Slot hoveredSlot; // TODO
+    private Slot hoveredSlot;
     private ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
     private EnchantPair reforgeToRender = null;
     private Set<EnchantPair> enchantsToRender = new HashSet<>();
@@ -224,7 +224,6 @@ public class MixinGuiContainer extends GuiScreen {
         int slotNum = hoveredSlot.slotNumber;
         Container container = mc.player.openContainer;
 
-        // TODO: Possible cancer code
         if (container instanceof ContainerChest) {
             slotNum -= ((ContainerChest)container).getLowerChestInventory().getSizeInventory()-9;
             if (slotNum < 9) return;
