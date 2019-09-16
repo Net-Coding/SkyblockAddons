@@ -10,6 +10,8 @@ Credits
 -----
 InventiveTalent for  allowing us to use her magma boss API in our project, please check out her magma boss timer website at https://hypixel.inventivetalent.org/skyblock-magma-timer/ .
 
+CraftedFury and GoldenDusk for modifying the original 1.8 plugin to work on 1.12 and 1.12.2.
+
 Thanks to YourKit
 ------
 ![YourKit](https://www.yourkit.com/images/yklogo.png)
