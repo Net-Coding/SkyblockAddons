@@ -1,18 +1,23 @@
 package codes.biscuit.skyblockaddons.utils;
 
 import codes.biscuit.skyblockaddons.SkyblockAddons;
+import net.minecraft.init.Enchantments;
+import net.minecraft.init.Items;
 import net.minecraft.init.PotionTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 import net.minecraftforge.common.util.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class Backpack {
 
@@ -29,7 +34,7 @@ public class Backpack {
 	}
 
 	public Backpack(ItemStack[] items, String backpackName, BackpackColor backpackColor, int x, int y) {
-		this(items,backpackName,backpackColor);
+		this(items, backpackName, backpackColor);
 		this.x = x;
 		this.y = y;
 	}
@@ -93,39 +98,55 @@ public class Backpack {
 
 						for (int i = 0; i < length; i++) {
 							NBTTagCompound item = list.getCompoundTagAt(i);
-							// This fixes an issue in Hypixel where enchanted potatoes have the wrong id (potato block instead of item).
 							short itemID = item.getShort("id");
+							boolean enchanted = false;
+							String newItemId = Item.getItemById(itemID).getRegistryName().toString();
 
-							if (itemID == 142 && item.hasKey("tag")) {
-								nbtTagCompound = item.getCompoundTag("tag");
+							if (item.hasKey("tag")) {
+								NBTTagCompound tag = item.getCompoundTag("tag");
 
-								if (nbtTagCompound.hasKey("ExtraAttributes")) {
-									id = nbtTagCompound.getCompoundTag("ExtraAttributes").getString("id");
-									if ("ENCHANTED_POTATO".equals(id)) {
-										item.setShort("id", (short)392);
+								if (tag.hasKey("ExtraAttributes")) {
+									NBTTagCompound itemAttributes = tag.getCompoundTag("ExtraAttributes");
+									String attributeID = itemAttributes.getString("id");
+
+									if (attributeID.startsWith("ENCHANTED_")) {
+										enchanted = true;
+
+										// This fixes enchanted potatoes having the wrong id (potato block).
+										if (itemID == 142 && "ENCHANTED_POTATO".equals(attributeID))
+											item.setShort("id", (short)392);
 									}
 								}
 							}
 
-							// Convert item id and potions from 1.8 to 1.12 format
+							// Convert item id from 1.8 to 1.12 format
 							item.removeTag("id");
-							String newItemId = Item.getItemById(itemID).getRegistryName().toString();
 							item.setString("id", newItemId);
 							ItemStack itemStack = new ItemStack(item);
-							// TODO: Fix enchanted items
 
-							// TODO: Fix potions
+							// Fix potions
 							if ("minecraft:potion".equals(newItemId)) {
 								NBTTagCompound tag = item.getCompoundTag("tag");
-								NBTTagCompound attributes = tag.getCompoundTag("ExtraAttributes");
-								String potionName = attributes.getString("potion");
-								PotionType potionType = getPotionType(potionName);
-								itemStack = PotionUtils.addPotionToItemStack(itemStack, potionType);
+								ItemStack potion = new ItemStack(Items.POTIONITEM, 1);
+								List<PotionEffect> effects = PotionUtils.getEffectsFromTag(tag);
+								PotionUtils.appendEffects(potion, effects);
+
+								if (!effects.isEmpty()) {
+									int pid = Potion.getIdFromPotion(effects.get(0).getPotion());
+									PotionType potionType = PotionType.REGISTRY.getObjectById(pid);
+									PotionUtils.addPotionToItemStack(potion, potionType);
+								}
+
+								// TODO: Fix non-potion potions (awkward, water, etc.)
+								itemStack = potion;
 							}
+
+							if (enchanted)
+								itemStack.addEnchantment(Enchantments.PROTECTION, 1);
 
 							items[i] = itemStack;
 						}
-//                        main.getUtils().setBackpackToRender(new Backpack(x, y, items, main.getUtils().stripColor(stack.getDisplayName())));
+
 						BackpackColor color = BackpackColor.WHITE;
 						if (extraAttributes.hasKey("backpack_color")) {
 							try {
@@ -133,11 +154,6 @@ public class Backpack {
 							} catch (IllegalArgumentException ignored) {}
 						}
 						return new Backpack(items, SkyblockAddons.getInstance().getUtils().stripColor(stack.getDisplayName()), color);
-
-//                        main.getUtils().setBackpackColor(color);
-//                        main.getPlayerListener().onItemTooltip(new ItemTooltipEvent(stack,
-//                                null, null, false));
-//                        ci.cancel();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
