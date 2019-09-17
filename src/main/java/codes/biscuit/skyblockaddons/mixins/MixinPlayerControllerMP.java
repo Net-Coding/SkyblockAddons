@@ -66,7 +66,8 @@ public class MixinPlayerControllerMP {
             if (main.getConfigValues().isEnabled(Feature.AVOID_BREAKING_BOTTOM_SUGAR_CANE)) {
                 //if (ItemStack.EMPTY.equals(heldItem) || heldItem.getItem().equals(Items.REEDS)
                 //        || heldItem.getItem().equals(Items.DIAMOND_HOE) || heldItem.getItem().equals(Items.IRON_HOE)
-                //        || heldItem.getItem().equals(Items.GOLDEN_HOE) || heldItem.getItem().equals(Items.WOODEN_HOE)) {
+                //        || heldItem.getItem().equals(Items.GOLDEN_HOE) || heldItem.getItem().equals(Items.STONE_HOE)
+                //        || heldItem.getItem().equals(Items.WOODEN_HOE)) {
                 if (!GuiScreen.isCtrlKeyDown()) {
                     if ((Blocks.REEDS.equals(block) && !Blocks.REEDS.equals(blockFloor)) ||
                             (Blocks.CACTUS.equals(block) && !Blocks.CACTUS.equals(blockFloor))) {
