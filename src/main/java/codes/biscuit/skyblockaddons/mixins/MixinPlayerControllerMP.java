@@ -44,7 +44,7 @@ public class MixinPlayerControllerMP {
         SkyblockAddons main = SkyblockAddons.getInstance();
         Minecraft mc = Minecraft.getMinecraft();
         EntityPlayerSP p = mc.player;
-        ItemStack heldItem = p.getHeldItem(EnumHand.MAIN_HAND);
+        //ItemStack heldItem = p.getHeldItem(EnumHand.MAIN_HAND);
         Block block = mc.world.getBlockState(loc).getBlock();
         Block blockFloor = mc.world.getBlockState(loc.down()).getBlock();
 
