@@ -222,19 +222,20 @@ public class MixinGuiContainer extends GuiScreen {
     private void drawGradientRect(GuiContainer guiContainer, int left, int top, int right, int bottom, int startColor, int endColor) {
         SkyblockAddons main = SkyblockAddons.getInstance();
         int slotNum = hoveredSlot.slotNumber;
+        boolean skipSlot = false;
         Container container = mc.player.openContainer;
 
         if (container instanceof ContainerChest) {
             slotNum -= ((ContainerChest)container).getLowerChestInventory().getSizeInventory()-9;
-            if (slotNum < 9) return;
+            if (slotNum < 9) skipSlot = true;
         } else if (container instanceof ContainerHopper) {
-            slotNum -= 4;
-            if (slotNum < 5) return;
+            slotNum += 4;
+            if (slotNum < 9) skipSlot = true;
         } else if (container instanceof ContainerDispenser) {
-            if (slotNum < 9) return;
+            if (slotNum < 9) skipSlot = true;
         }
         main.getUtils().setLastHoveredSlot(slotNum);
-        if (hoveredSlot != null && main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) &&
+        if (!skipSlot && hoveredSlot != null && main.getConfigValues().isEnabled(Feature.LOCK_SLOTS) &&
                 main.getUtils().isOnSkyblock() && main.getConfigValues().getLockedSlots().contains(slotNum)) {
             int red = ConfigColor.RED.getColor(127);
             drawGradientRect(left,top,right,bottom,red,red);
@@ -255,8 +256,8 @@ public class MixinGuiContainer extends GuiScreen {
                 slotNum -= ((ContainerChest)container).getLowerChestInventory().getSizeInventory()-9;
                 if (slotNum < 9) return;
             } else if (container instanceof ContainerHopper) {
-                slotNum -= 4;
-                if (slotNum < 5) return;
+                slotNum += 4;
+                if (slotNum < 9) return;
             } else if (container instanceof ContainerDispenser) {
                 if (slotNum < 9) return;
             }

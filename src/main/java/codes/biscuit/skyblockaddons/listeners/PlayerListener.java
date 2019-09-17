@@ -17,7 +17,6 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityBlaze;
 import net.minecraft.entity.monster.EntityMagmaCube;
 import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -78,8 +77,8 @@ public class PlayerListener {
      * Reset all the timers and stuff when joining a new world.
      */
     @SubscribeEvent()
-    public void onWorldJoin(EntityJoinWorldEvent e) {
-        if (Minecraft.getMinecraft().player.equals(e.getEntity())) {
+    public void onWorldJoin(EntityJoinWorldEvent event) {
+        if (Minecraft.getMinecraft().player.equals(event.getEntity())) {
             lastWorldJoin = System.currentTimeMillis();
             lastBoss = -1;
             magmaTick = 1;
@@ -93,10 +92,10 @@ public class PlayerListener {
      * Keep track of recently loaded chunks for the magma boss timer.
      */
     @SubscribeEvent()
-    public void onChunkLoad(ChunkEvent.Load e) {
+    public void onChunkLoad(ChunkEvent.Load event) {
         if (main.getUtils().isOnSkyblock()) {
-            int x = e.getChunk().x;
-            int z = e.getChunk().z;
+            int x = event.getChunk().x;
+            int z = event.getChunk().z;
             CoordsPair coords = new CoordsPair(x, z);
             recentlyLoadedChunks.add(coords);
             main.getScheduler().schedule(Scheduler.CommandType.DELETE_RECENT_CHUNK, 20, x, z);
@@ -107,9 +106,9 @@ public class PlayerListener {
      * and looks for mana usage messages in chat while predicting.
      */
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public void onChatReceive(ClientChatReceivedEvent e) {
-        String message = e.getMessage().getUnformattedText();
-        if (e.getType() == ChatType.GAME_INFO) {
+    public void onChatReceive(ClientChatReceivedEvent event) {
+        String message = event.getMessage().getUnformattedText();
+        if (event.getType() == ChatType.GAME_INFO) {
             if (message.endsWith("\u270E Mana\u00A7r")) {
                 try {
                     String returnMessage;
@@ -179,9 +178,9 @@ public class PlayerListener {
                         returnMessage = newMessage.toString();
                     }
                     if (main.isUsingOofModv1() && returnMessage.trim().isEmpty()) {
-                        e.setCanceled(true);
+                        event.setCanceled(true);
                     }
-                    e.setMessage(new TextComponentString(returnMessage));
+                    event.setMessage(new TextComponentString(returnMessage));
                     return;
                 } catch (Exception ex) {
                     main.getRenderListener().setPredictMana(true);
@@ -199,7 +198,7 @@ public class PlayerListener {
             /*  Resets all user input on dead as to not walk backwards or stafe into the portal
                 Might get trigger upon encountering a non named "You" though this chance is so
                 minimal it can be discarded as a bug. */
-            if (main.getConfigValues().isEnabled(Feature.PREVENT_MOVEMENT_ON_DEATH) && e.getMessage().getFormattedText().startsWith("\u00A7r\u00A7c \u2620 \u00A7r\u00A77You ")) {
+            if (main.getConfigValues().isEnabled(Feature.PREVENT_MOVEMENT_ON_DEATH) && event.getMessage().getFormattedText().startsWith("\u00A7r\u00A7c \u2620 \u00A7r\u00A77You ")) {
                 KeyBinding.unPressAllKeys();
             }
         }
@@ -221,8 +220,8 @@ public class PlayerListener {
      * The main timer for a bunch of stuff.
      */
     @SubscribeEvent()
-    public void onTick(TickEvent.ClientTickEvent e) {
-        if (e.phase == TickEvent.Phase.START) {
+    public void onTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
             timerTick++;
             Minecraft mc = Minecraft.getMinecraft();
             if (mc != null) { // Predict health every tick if needed.
@@ -280,8 +279,8 @@ public class PlayerListener {
      * Original contribution by Michael#3549.
      */
     @SubscribeEvent
-    public void onEntityEvent(LivingEvent.LivingUpdateEvent e) {
-        Entity entity = e.getEntity();
+    public void onEntityEvent(LivingEvent.LivingUpdateEvent event) {
+        Entity entity = event.getEntity();
         if (main.getUtils().isOnSkyblock() && entity instanceof EntityArmorStand && entity.hasCustomName()) {
             if (main.getUtils().getLocation() == EnumUtils.Location.ISLAND) {
                 int cooldown = main.getConfigValues().getWarningSeconds() * 1000 + 5000;
@@ -339,8 +338,8 @@ public class PlayerListener {
      * The main timer for the magma boss checker.
      */
     @SubscribeEvent()
-    public void onClientTickMagma(TickEvent.ClientTickEvent e) {
-        if (e.phase == TickEvent.Phase.START) {
+    public void onClientTickMagma(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
             Minecraft mc = Minecraft.getMinecraft();
             if (main.getConfigValues().isEnabled(Feature.MAGMA_WARNING) && main.getUtils().isOnSkyblock()) {
                 if (mc != null && mc.world != null) {
@@ -398,17 +397,17 @@ public class PlayerListener {
     private long lastBlazeWavePost = -1;
 
     @SubscribeEvent()
-    public void onTickMagmaBossChecker(EntityEvent.EnteringChunk e) { // EntityJoinWorldEvent
+    public void onTickMagmaBossChecker(EntityEvent.EnteringChunk event) { // EntityJoinWorldEvent
 
         // Between these two coordinates is the whole "arena" area where all the magmas and stuff are.
         AxisAlignedBB spawnArea = new AxisAlignedBB(-244, 0, -566, -379, 255, -635);
 
         if (main.getUtils().getLocation() == EnumUtils.Location.BLAZING_FORTRESS) {
-            Entity entity =  e.getEntity();
+            Entity entity =  event.getEntity();
             if (spawnArea.contains(new Vec3d(entity.posX, entity.posY, entity.posZ))) { // timers will trigger if 15 magmas/8 blazes spawn in the box within a 4 second time period
                 long currentTime = System.currentTimeMillis();
-                if (e.getEntity() instanceof EntityMagmaCube) {
-                    if (!recentlyLoadedChunks.contains(new CoordsPair(e.getNewChunkX(), e.getNewChunkZ())) && entity.ticksExisted == 0) {
+                if (event.getEntity() instanceof EntityMagmaCube) {
+                    if (!recentlyLoadedChunks.contains(new CoordsPair(event.getNewChunkX(), event.getNewChunkZ())) && entity.ticksExisted == 0) {
                         recentMagmaCubes++;
                         main.getScheduler().schedule(Scheduler.CommandType.SUBTRACT_MAGMA_COUNT, 4);
                         if (recentMagmaCubes >= 17) {
@@ -420,8 +419,8 @@ public class PlayerListener {
                             }
                         }
                     }
-                } else if (e.getEntity() instanceof EntityBlaze) {
-                    if (!recentlyLoadedChunks.contains(new CoordsPair(e.getNewChunkX(), e.getNewChunkZ())) && entity.ticksExisted == 0) {
+                } else if (event.getEntity() instanceof EntityBlaze) {
+                    if (!recentlyLoadedChunks.contains(new CoordsPair(event.getNewChunkX(), event.getNewChunkZ())) && entity.ticksExisted == 0) {
                         recentBlazes++;
                         main.getScheduler().schedule(Scheduler.CommandType.SUBTRACT_BLAZE_COUNT, 4);
                         if (recentBlazes >= 10) {
@@ -442,8 +441,8 @@ public class PlayerListener {
      * This is simply to help players copy item nbt (for creating texture packs/other stuff).
      */
     @SubscribeEvent()
-    public void onItemTooltip(ItemTooltipEvent e) {
-        ItemStack hoveredItem = e.getItemStack();
+    public void onItemTooltip(ItemTooltipEvent event) {
+        ItemStack hoveredItem = event.getItemStack();
 
         if (main.getConfigValues().isEnabled(Feature.SHOW_ITEM_ANVIL_USES)) {
             // Anvil Uses ~ original done by Dahn#6036
@@ -451,10 +450,10 @@ public class PlayerListener {
                 NBTTagCompound nbt = hoveredItem.getTagCompound();
                 if (nbt.hasKey("ExtraAttributes")) {
                     if (nbt.getCompoundTag("ExtraAttributes").hasKey("anvil_uses")) {
-                        int insertAt = e.getToolTip().size();
+                        int insertAt = event.getToolTip().size();
                         if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips) {
                             insertAt -= 3; // 1 line for the item name, 1 line for the nbt, and 1 line for the rarity
-                            if (e.getItemStack().isItemDamaged()) {
+                            if (event.getItemStack().isItemDamaged()) {
                                 insertAt--; // 1 line for damage
                             }
                         }
@@ -464,7 +463,7 @@ public class PlayerListener {
                             anvilUses -= hotPotatoCount;
                         }
                         if (anvilUses > 0) {
-                            e.getToolTip().add(insertAt, "Anvil Uses: " + TextFormatting.RED.toString() + anvilUses);
+                            event.getToolTip().add(insertAt, "Anvil Uses: " + TextFormatting.RED.toString() + anvilUses);
                         }
                     }
                 }
@@ -490,10 +489,11 @@ public class PlayerListener {
             }
         }
 
-        if (main.getUtils().isOnSkyblock() && main.getConfigValues().isEnabled(Feature.REPLACE_ROMAN_NUMERALS_WITH_NUMBERS) &&
-                e.getToolTip() != null && (hoveredItem.isItemEnchanted()||hoveredItem.getItem().equals(Items.POTIONITEM))) {
-            for (int i = 0; i < e.getToolTip().size(); i++)
-                e.getToolTip().set(i, main.getUtils().replaceRomanNumerals(e.getToolTip().get(i)));
+        if (main.getUtils().isOnSkyblock() &&
+                main.getConfigValues().isEnabled(Feature.REPLACE_ROMAN_NUMERALS_WITH_NUMBERS) &&
+                event.getToolTip() != null) {
+            for (int i = 0; i < event.getToolTip().size(); i++)
+                event.getToolTip().set(i, main.getUtils().replaceRomanNumerals(event.getToolTip().get(i)));
         }
     }
 
@@ -502,13 +502,13 @@ public class PlayerListener {
     private long lastClosedInv = -1;
 
     @SubscribeEvent
-    public void onGuiOpen(GuiOpenEvent e) {
-        if (e.getGui() == null && GuiChest.class.equals(lastOpenedInventory)) {
+    public void onGuiOpen(GuiOpenEvent event) {
+        if (event.getGui() == null && GuiChest.class.equals(lastOpenedInventory)) {
             lastClosedInv = System.currentTimeMillis();
             lastOpenedInventory = null;
         }
-        if (e.getGui() != null) {
-            lastOpenedInventory = e.getGui().getClass();
+        if (event.getGui() != null) {
+            lastOpenedInventory = event.getGui().getClass();
         }
     }
 

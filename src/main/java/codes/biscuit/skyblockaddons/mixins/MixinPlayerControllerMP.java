@@ -50,7 +50,7 @@ public class MixinPlayerControllerMP {
 
         if (main.getUtils().getLocation() == EnumUtils.Location.ISLAND) {
             if (main.getConfigValues().isEnabled(Feature.AVOID_BREAKING_STEMS)) {
-                if (!ItemStack.EMPTY.equals(heldItem)) {
+                if (!GuiScreen.isCtrlKeyDown()) {
                     if (Blocks.MELON_STEM.equals(block) || Blocks.PUMPKIN_STEM.equals(block)) {
                         if (System.currentTimeMillis() - lastStemMessage > 20000) {
                             lastStemMessage = System.currentTimeMillis();
@@ -64,19 +64,21 @@ public class MixinPlayerControllerMP {
             }
 
             if (main.getConfigValues().isEnabled(Feature.AVOID_BREAKING_BOTTOM_SUGAR_CANE)) {
-                if (ItemStack.EMPTY.equals(heldItem) || heldItem.getItem().equals(Items.REEDS)
-                        || heldItem.getItem().equals(Items.DIAMOND_HOE) || heldItem.getItem().equals(Items.IRON_HOE)
-                        || heldItem.getItem().equals(Items.GOLDEN_HOE) || heldItem.getItem().equals(Items.WOODEN_HOE)) {
+                //if (ItemStack.EMPTY.equals(heldItem) || heldItem.getItem().equals(Items.REEDS)
+                //        || heldItem.getItem().equals(Items.DIAMOND_HOE) || heldItem.getItem().equals(Items.IRON_HOE)
+                //        || heldItem.getItem().equals(Items.GOLDEN_HOE) || heldItem.getItem().equals(Items.WOODEN_HOE)) {
+                if (!GuiScreen.isCtrlKeyDown()) {
                     if ((Blocks.REEDS.equals(block) && !Blocks.REEDS.equals(blockFloor)) ||
                             (Blocks.CACTUS.equals(block) && !Blocks.CACTUS.equals(blockFloor))) {
                         if (System.currentTimeMillis() - lastStemMessage > 20000) {
                             lastStemMessage = System.currentTimeMillis();
-                            main.getUtils().sendMessage(ChatFormatting.RED+Message.MESSAGE_CANCELLED_STEM_BREAK.getMessage());
+                            main.getUtils().sendMessage(ChatFormatting.RED + Message.MESSAGE_CANCELLED_CANE_BREAK.getMessage());
                         }
 
                         cir.setReturnValue(false);
                     }
                 }
+                //}
             }
         }
     }
@@ -145,7 +147,7 @@ public class MixinPlayerControllerMP {
                 if (item != null && item.getItem() != null && item.getItem().equals(Items.BOW)) {
                     if (System.currentTimeMillis()- lastProfileMessage > 20000) {
                         lastProfileMessage = System.currentTimeMillis();
-                        main.getUtils().sendMessage(ChatFormatting.RED+Message.MESSAGE_STOPPED_OPENING_PROFILE.getMessage());
+                        main.getUtils().sendMessage(ChatFormatting.RED + Message.MESSAGE_STOPPED_OPENING_PROFILE.getMessage());
                     }
 
                     cir.setReturnValue(EnumActionResult.PASS);

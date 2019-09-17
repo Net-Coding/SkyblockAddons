@@ -14,12 +14,11 @@ import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
-import net.minecraft.inventory.ContainerDispenser;
-import net.minecraft.inventory.ContainerHopper;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -116,7 +115,7 @@ public abstract class MixinGuiChest extends GuiContainer {
                 i++;
             }
             String text = enchantmentBuilder.toString();
-            if (text.length() > 0) {
+            if (!text.isEmpty()) {
                 textFieldMatch.setText(text);
             }
             yPos += 40;
@@ -133,7 +132,7 @@ public abstract class MixinGuiChest extends GuiContainer {
                 i++;
             }
             text = enchantmentBuilder.toString();
-            if (text.length() > 0) {
+            if (!text.isEmpty()) {
                 textFieldExclusions.setText(text);
             }
         }
@@ -161,7 +160,7 @@ public abstract class MixinGuiChest extends GuiContainer {
     @Override
     protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
         SkyblockAddons main = SkyblockAddons.getInstance();
-        if (main.getUtils().getEnchantmentMatch().size() > 0) {
+        if (!main.getUtils().getEnchantmentMatch().isEmpty()) {
             if (slotIn != null && !slotIn.inventory.equals(mc.player.inventory) && slotIn.getHasStack()) {
                 Container slots = inventorySlots;
                 if (slotIn.getSlotIndex() == 13 && inventoryType == EnumUtils.InventoryType.ENCHANTMENT_TABLE) {
@@ -206,15 +205,8 @@ public abstract class MixinGuiChest extends GuiContainer {
                 main.getUtils().isOnSkyblock()) {
             int slotNum = slotIn.slotNumber;
             Container container = mc.player.openContainer;
-            if (container instanceof ContainerChest) {
-                slotNum -= ((ContainerChest)container).getLowerChestInventory().getSizeInventory()-9;
-                if (slotNum < 9) break out;
-            } else if (container instanceof ContainerHopper) {
-                slotNum -= 4;
-                if (slotNum < 5) break out;
-            } else if (container instanceof ContainerDispenser) {
-                if (slotNum < 9) break out;
-            }
+            slotNum -= ((ContainerChest)container).getLowerChestInventory().getSizeInventory()-9;
+            if (slotNum < 9) break out; // for chests
             if (main.getConfigValues().getLockedSlots().contains(slotNum)) {
                 main.getUtils().playSound(SoundEvents.BLOCK_NOTE_BASS, 0.5);
                 return;
@@ -222,7 +214,8 @@ public abstract class MixinGuiChest extends GuiContainer {
         }
 
         if (main.getConfigValues().isEnabled(Feature.STOP_DROPPING_SELLING_RARE_ITEMS) &&
-                lowerChestInventory.hasCustomName() && EnumUtils.Merchant.isMerchant(lowerChestInventory.getDisplayName().getUnformattedText())) {
+                lowerChestInventory.hasCustomName() && EnumUtils.Merchant.isMerchant(lowerChestInventory.getDisplayName().getUnformattedText()) &&
+                slotIn != null && slotIn.inventory instanceof InventoryPlayer) {
             if (main.getInventoryUtils().shouldCancelDrop(slotIn))
                 return;
         }
